@@ -1,14 +1,23 @@
-const http = require('http');
+const express = require('express');
+const promBundle = require('express-prom-bundle');
 
-const hostname = '0.0.0.0';
+const app = express();
 const port = 4000;
 
-const server = http.createServer((req, res) => {
-  res.statusCode = 200;
-  res.setHeader('Content-Type', 'text/plain');
-  res.end('DevOps production flow l1!\n');
+// Prometheus metrics middleware
+const metricsMiddleware = promBundle({
+  includeMethod: true,
+  includePath: true,
+  metricsPath: '/metrics'
 });
 
-server.listen(port, hostname, () => {
-  console.log(`Server running at http://${hostname}:${port}/`);
+app.use(metricsMiddleware);
+
+// Your application route
+app.get('/', (req, res) => {
+  res.send('DevOps production flow l1!');
+});
+
+app.listen(port, '0.0.0.0', () => {
+  console.log(`Server running at http://0.0.0.0:${port}`);
 });
